@@ -1,3 +1,7 @@
+from .AgentContext import AgentContext
+from .DivisionContext import DivisionContext
+from .BrainiacContext import BrainiacContext
+
 class ContextManager:
     def __init__(self, base_directory="E:\\Brainiac_Ai\\context\\context_content\\ContextManager"):
         # Ensure the base directories for each context type exist
