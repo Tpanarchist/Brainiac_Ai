@@ -3,12 +3,14 @@ import os
 from datetime import datetime
 
 class AgentContext:
-    def __init__(self, agent_id, log_directory="logs"):
+    def __init__(self, agent_id, base_directory="E:\\Brainiac_Ai\\context\\context_content\\Agent"):
         self.agent_id = agent_id
         self.state = {}
         self.history = []
-        self.log_directory = log_directory
-        os.makedirs(log_directory, exist_ok=True)
+        self.data_directory = os.path.join(base_directory, 'Data')
+        self.log_directory = os.path.join(base_directory, 'Logs')
+        os.makedirs(self.data_directory, exist_ok=True)
+        os.makedirs(self.log_directory, exist_ok=True)
 
     def update_state(self, key, value):
         self.state[key] = value
@@ -32,7 +34,7 @@ class AgentContext:
         self.log_history()
 
     def log_state(self):
-        file_path = os.path.join(self.log_directory, f"{self.agent_id}_state.json")
+        file_path = os.path.join(self.data_directory, f"{self.agent_id}_state.json")
         with open(file_path, 'w') as file:
             file.write(json.dumps({
                 'timestamp': datetime.now().isoformat(),
@@ -46,7 +48,7 @@ class AgentContext:
                 file.write(f"{entry}\n")
 
     def load_state(self):
-        file_path = os.path.join(self.log_directory, f"{self.agent_id}_state.json")
+        file_path = os.path.join(self.data_directory, f"{self.agent_id}_state.json")
         if os.path.exists(file_path):
             with open(file_path, 'r') as file:
                 loaded_data = json.load(file)
