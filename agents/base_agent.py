@@ -8,7 +8,7 @@ from prompts.base_prompt import BasePrompt
 # from tools.common_tools import ToolKit
 # from roles.agent_roles import RoleManager
 # from divisions.agent_divisions import DivisionManager
-# from context.agent_context import ContextManager
+from context.ContextManager import ContextManager
 # from memory.agent_memory import MemoryManager
 
 class BaseAgent:

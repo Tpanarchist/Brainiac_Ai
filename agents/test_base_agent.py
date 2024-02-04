@@ -1,29 +1,43 @@
-# test_base_agent.py
-
 import asyncio
-from agents.base_agent import BaseAgent
+import pytest
+from base_agent import BaseAgent
+from context.ContextManager import ContextManager  # Adjust this import path as needed
 
-async def test_agent_flow():
-    # Specify the BSHR roles for testing
+# Use a fixture to initialize ContextManager and share it across tests
+@pytest.fixture
+async def context_manager():
+    return ContextManager(base_directory="E:\\Brainiac_Ai\\context\\context_content\\ContextManager")
+
+@pytest.mark.asyncio
+async def test_agent_context_flow(context_manager):
+    # Define roles, corresponding user queries, and context actions
     roles = ['brainstorm', 'search', 'hypothesize', 'refinement']
+    queries = {
+        'brainstorm': "What should we consider when discussing climate change?",
+        'search': "Find information on renewable energy sources.",
+        'hypothesize': "What could be the impact of global warming on coastal areas?",
+        'refinement': "Refine our understanding of the effects of deforestation."
+    }
+
+    # Iterate through each role, perform context updates, and process queries
     for role in roles:
-        print(f"\nTesting BaseAgent with role: {role}")
-        agent = BaseAgent(role=role)
-        print(f"System Prompt for {role}:\n{agent.system_prompt}\n")
-        
-        # Simulate a user query relevant to the role
-        if role == 'brainstorm':
-            user_query = "What should we consider when discussing climate change?"
-        elif role == 'search':
-            user_query = "Find information on renewable energy sources."
-        elif role == 'hypothesize':
-            user_query = "Based on what we know, what can be the impact of global warming on coastal areas?"
-        else:  # refinement
-            user_query = "Refine our understanding of the effects of deforestation on biodiversity."
+        print(f"\nTesting role: {role} with context interaction")
+        agent = BaseAgent(role=role, api_key='your_api_key_here')  # Ensure you have a valid API key
 
-        # Process the user query and print the AI response
+        # Example context updates
+        context_manager.update_agent_state('agent1', 'role', role)
+        context_manager.add_to_division_resources('global_strategy', 'budget', 100000)
+        context_manager.log_global_state(f"Agent {role} processing started")
+
+        user_query = queries[role]
+        print(f"User query: {user_query}")
+
+        # Execute the query and wait for the response
         response = await agent.process_input(user_query)
-        print(f"Response to '{user_query}' for role {role}:\n{response}")
+        print(f"AI Response: {response}")
 
-if __name__ == "__main__":
-    asyncio.run(test_agent_flow())
+        # Optionally, inspect context state after processing
+        agent_context = context_manager.get_agent_context('agent1')
+        division_context = context_manager.get_division_context('global_strategy')
+        print(f"Agent state after processing: {agent_context.get_state()}")
+        print(f"Division resources after processing: {division_context.get_shared_resources()}")
