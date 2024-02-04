@@ -1,6 +1,6 @@
 import asyncio
 import pytest
-from base_agent import BaseAgent
+from agents.base_agent import BaseAgent
 from context.ContextManager import ContextManager  # Adjust this import path as needed
 
 # Use a fixture to initialize ContextManager and share it across tests
