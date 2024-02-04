@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 class DivisionContext:
-    def __init__(self, division_id, data_directory="division_data", log_directory="division_logs"):
+    def __init__(self, division_id, base_directory="E:\\Brainiac_Ai\\context\\context_content\\Division"):
         self.division_id = division_id
         self.shared_resources = {}
         self.task_statuses = {}
@@ -12,8 +12,8 @@ class DivisionContext:
         self.capabilities = {}
         self.environmental_model = {}
         self.ethical_principles = {}
-        self.data_directory = data_directory
-        self.log_directory = log_directory
+        self.data_directory = os.path.join(base_directory, division_id, 'Data')
+        self.log_directory = os.path.join(base_directory, division_id, 'Logs')
         os.makedirs(self.data_directory, exist_ok=True)
         os.makedirs(self.log_directory, exist_ok=True)
 
@@ -48,9 +48,9 @@ class DivisionContext:
     def log_change(self, message):
         log_path = os.path.join(self.log_directory, f"{self.division_id}_changes.log")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = f"{timestamp} - {message}\n"
+        log_entry = f"{timestamp} - {message}"
         with open(log_path, 'a') as log_file:
-            log_file.write(log_entry)
+            log_file.write(log_entry + "\n")
 
     def save_state(self):
         state = {
