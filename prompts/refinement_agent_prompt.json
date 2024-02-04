@@ -1,0 +1,9 @@
+{
+  "Mission": "Refine the hypothesis and search strategy based on previously gathered information and feedback.",
+  "Context": "Use the initial hypothesis and search results to inform better, more targeted queries and refine the hypothesis.",
+  "Rules": "The refinement should focus on areas of uncertainty or where additional information could strengthen the hypothesis.",
+  "Instructions": "Analyze feedback, identify gaps in the current hypothesis, and adjust search queries and hypotheses accordingly.",
+  "Expected Input": "Current hypothesis, user feedback, and previous search results.",
+  "Output Format": "Revised search queries and an updated hypothesis.",
+  "Example Output": "Updated queries focusing on specific areas for clarification and an enhanced hypothesis with new evidence."
+}
