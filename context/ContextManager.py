@@ -1,32 +1,37 @@
+import os
+from datetime import datetime
 from .AgentContext import AgentContext
 from .DivisionContext import DivisionContext
 from .BrainiacContext import BrainiacContext
 
 class ContextManager:
     def __init__(self, base_directory="E:\\Brainiac_Ai\\context\\context_content\\ContextManager"):
-        # Ensure the base directories for each context type exist
+        self.base_directory = base_directory
         self.agent_base_directory = os.path.join(base_directory, "Agent")
         self.division_base_directory = os.path.join(base_directory, "Division")
         self.brainiac_base_directory = os.path.join(base_directory, "Brainiac")
 
-        # Initialize containers for agent and division contexts
+        os.makedirs(self.agent_base_directory, exist_ok=True)
+        os.makedirs(self.division_base_directory, exist_ok=True)
+        os.makedirs(self.brainiac_base_directory, exist_ok=True)
+
+        # Initialize the BrainiacContext
+        self.brainiac_context = BrainiacContext(base_directory=self.brainiac_base_directory)
+
+        # Dictionaries to hold the contexts for agents and divisions
         self.agent_contexts = {}
         self.division_contexts = {}
-        # Initialize Brainiac context
-        self.brainiac_context = BrainiacContext(data_directory=self.brainiac_base_directory, log_directory=os.path.join(self.brainiac_base_directory, "Logs"))
 
     def get_agent_context(self, agent_id):
-        # Dynamically create an agent context if it doesn't exist, within the Agent subdirectory
         if agent_id not in self.agent_contexts:
             agent_dir = os.path.join(self.agent_base_directory, agent_id)
-            self.agent_contexts[agent_id] = AgentContext(agent_id=agent_id, base_directory=agent_dir)
+            self.agent_contexts[agent_id] = AgentContext(agent_id, base_directory=agent_dir)
         return self.agent_contexts[agent_id]
 
     def get_division_context(self, division_id):
-        # Dynamically create a division context if it doesn't exist, within the Division subdirectory
         if division_id not in self.division_contexts:
             division_dir = os.path.join(self.division_base_directory, division_id)
-            self.division_contexts[division_id] = DivisionContext(division_id=division_id, base_directory=division_dir)
+            self.division_contexts[division_id] = DivisionContext(division_id, base_directory=division_dir)
         return self.division_contexts[division_id]
 
     def update_agent_state(self, agent_id, key, value):

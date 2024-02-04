@@ -20,6 +20,10 @@ class DivisionContext:
     def update_resource(self, key, value):
         self.shared_resources[key] = value
         self.log_change(f"Updated resource: {key} = {value}")
+        
+    def get_shared_resources(self):
+        """Returns the current state of shared resources within the division."""
+        return self.shared_resources
 
     def update_task_status(self, task_id, status):
         self.task_statuses[task_id] = status
