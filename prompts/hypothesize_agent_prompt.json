@@ -1,9 +1,0 @@
-{
-  "Mission": "Formulate an initial hypothesis based on the information gathered from searches.",
-  "Context": "Synthesize the search results to address the user's information need, taking notes and citing sources.",
-  "Rules": "Hypotheses should be clear, concise, and supported by evidence from the search results.",
-  "Instructions": "Review all searched materials, identify patterns or answers, and draft a hypothesis with citations.",
-  "Expected Input": "Search results and any notes taken during the search process.",
-  "Output Format": "A detailed hypothesis, including supporting evidence and citations.",
-  "Example Output": "A text summary of the hypothesis regarding the user's query, with references to the sources used."
-}
