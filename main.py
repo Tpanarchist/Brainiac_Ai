@@ -1,30 +1,31 @@
 import os
-import asyncio
 from layers.aspirational_layer import AspirationalLayer
 from layers.global_strategy_layer import GlobalStrategyLayer
-from layers.northbound_bus import NorthboundBus
-from layers.southbound_bus import SouthboundBus
+from layers.agent_model_layer import AgentModelLayer
+from layers.executive_function_layer import ExecutiveFunctionLayer
+from layers.cognitive_control_layer import CognitiveControlLayer
+from layers.task_prosecution_layer import TaskProsecutionLayer
+from busses.northbound_bus import NorthboundBus
+from busses.southbound_bus import SouthboundBus
 
-async def main():
-    # Initialize layers
-    aspirational_layer = AspirationalLayer()
-    global_strategy_layer = GlobalStrategyLayer()
-    northbound_bus = NorthboundBus()
-    southbound_bus = SouthboundBus()
+# API Key setup (securely managed via environment variables)
+api_key = os.getenv("OPENAI_API_KEY")
 
-    # Example interaction with the Aspirational Layer
-    aspirational_response = await aspirational_layer.chat("Example input requiring ethical guidance.")
-    print("Aspirational Layer:", aspirational_response)
+if not api_key:
+    raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
 
-    # Pass the response from Aspirational Layer to Global Strategy Layer for further processing
-    global_strategy_response = await global_strategy_layer.chat(aspirational_response)
-    print("Global Strategy Layer:", global_strategy_response)
+# Initialize communication buses as agents
+northbound_bus = NorthboundBus(api_key)
+southbound_bus = SouthboundBus(api_key)
 
-    # Example user input to Global Strategy Layer
-    user_input = "Current global economic trends and their impact on environmental policies."
-    global_strategy_response = await global_strategy_layer.chat(user_input)
-    print("Global Strategy Layer:", global_strategy_response)
+# Initialize layers with communication buses
+aspirational_layer = AspirationalLayer(api_key, southbound_bus)
+global_strategy_layer = GlobalStrategyLayer(api_key, southbound_bus, northbound_bus)
+agent_model_layer = AgentModelLayer(api_key, southbound_bus, northbound_bus)
+executive_function_layer = ExecutiveFunctionLayer(api_key, southbound_bus, northbound_bus)
+cognitive_control_layer = CognitiveControlLayer(api_key, southbound_bus, northbound_bus)
+task_prosecution_layer = TaskProsecutionLayer(api_key, northbound_bus)
 
-# Run the main coroutine
+# Orchestration logic
 if __name__ == "__main__":
-    asyncio.run(main())
+    aspirational_layer.send_directive("Maximize user engagement while adhering to ethical guidelines.")
