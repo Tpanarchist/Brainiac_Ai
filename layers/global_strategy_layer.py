@@ -1,31 +1,80 @@
-# Global Strategy Layer
+import os
+import requests
+import asyncio
+import logging
 from simpleaichat import AIChat
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 class GlobalStrategyLayer:
-    def __init__(self, api_key, southbound_bus, northbound_bus):
-        self.southbound_bus = southbound_bus
-        self.northbound_bus = northbound_bus
-        self.agent = AIChat(api_key=api_key, system="You are the Global Strategy Layer, formulating strategies based on directives.")
+    def __init__(self, bus_url="http://127.0.0.1:9000/message"):
+        self.api_key = os.getenv('OPENAI_API_KEY')
+        if not self.api_key:
+            raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
+        
+        self.ai_chat = AIChat(api_key=self.api_key, system=self.generate_system_prompt())
+        self.bus_url = bus_url
+        self.processed_tasks = set()
+        logging.info("Global Strategy Layer initialized with bus_url: %s", bus_url)
 
-    def receive_directive(self, directive):
-        print(f"Global Strategy Layer received directive: {directive}")
-        # Simulate processing the directive
-        strategy_plan = self.process_directive(directive)
-        # Simulate sending strategy plan to the Executive Function Layer
-        self.send_strategy_plan(strategy_plan)
+    def generate_system_prompt(self):
+        prompt = """
+        You are the Global Strategy Layer of an Autonomous Cognitive Entity (ACE). Your role is to analyze external 
+        and internal information to develop strategic goals and directions. Use this data to create actionable strategies 
+        that align with the overarching mission and ethical guidelines provided by the Aspirational Layer. Your output should 
+        include strategic insights, potential risks, and recommendations for the lower layers to execute.
+        """
+        logging.info("Global Strategy Layer system prompt generated.")
+        return prompt.strip()
 
-    def process_directive(self, directive):
-        # Placeholder for complex directive processing logic
-        # For demonstration purposes, return a mock strategy plan based on the directive
-        strategy_plan = f"Strategy Plan based on directive: '{directive}'"
-        return strategy_plan
+    async def process_external_inputs(self):
+        logging.info("Global Strategy Layer starting to process external inputs...")
+        while True:
+            tasks = self.get_tasks_from_bus(bus="north", layer=1)
+            if tasks:
+                logging.info(f"Retrieved {len(tasks)} tasks from bus.")
+            else:
+                logging.info("No tasks retrieved from bus.")
 
-    def send_strategy_plan(self, strategy_plan):
-        # In a real implementation, this would involve the southbound bus logic to route the plan to the Executive Function Layer
-        recipient_layer = "executive_function"  # This should match your system's layer identifier
-        print(f"Global Strategy Layer sending strategy plan to {recipient_layer}: {strategy_plan}")
-        # Example placeholder logic (adjust according to your actual implementation)
-        # self.southbound_bus.send_directive(strategy_plan, recipient_layer)
+            for task in tasks:
+                task_id = f"{task['message']}_{task['timestamp']}"
+                if task_id not in self.processed_tasks:
+                    logging.info(f"Processing task with message: {task['message']}")
+                    strategy = await self.handle_task(task)
+                    logging.info(f"Strategy developed for task: {strategy}")
+                    self.processed_tasks.add(task_id)
 
-# Note: The above send_strategy_plan method currently just prints the action for demonstration.
-# You would need to implement the logic in the SouthboundBus to actually route the message.
+            await asyncio.sleep(5)
+
+    def get_tasks_from_bus(self, bus, layer):
+        logging.info(f"Fetching tasks from bus: {bus}, layer: {layer}")
+        params = {"bus": bus, "layer": layer}
+        response = requests.get(self.bus_url, params=params)
+        if response.status_code == 200:
+            messages = response.json().get('messages', [])
+            return messages
+        else:
+            logging.error(f"Failed to fetch tasks from bus: {response.status_code}, {response.text}")
+            return []
+
+    async def handle_task(self, task):
+        logging.info(f"Developing strategy for task: {task['message']}")
+        strategy = await self.ai_chat(task['message'])
+        self.report_strategy_to_bus(strategy, bus="south", layer=2)
+        return strategy
+
+    def report_strategy_to_bus(self, strategy, bus, layer):
+        logging.info(f"Reporting strategy to bus: {strategy}, bus: {bus}, layer: {layer}")
+        data = {"message": strategy, "bus": bus, "layer": layer}
+        response = requests.post(self.bus_url, json=data)
+        if response.status_code == 200:
+            logging.info("Strategy successfully reported to bus.")
+        else:
+            logging.error(f"Failed to report strategy to bus: {response.status_code}, {response.text}")
+
+async def main():
+    global_strategy_layer = GlobalStrategyLayer()
+    await global_strategy_layer.process_external_inputs()
+
+if __name__ == "__main__":
+    asyncio.run(main())
